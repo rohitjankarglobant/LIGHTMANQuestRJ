@@ -109,3 +109,32 @@ coding_standards:
       - Ensure that all public functions and methods have type hints to communicate their expected usage clearly.
       - Utilize static type checkers (e.g., `mypy`) to validate type hints and catch potential type-related errors before runtime.
       - Consistently apply type hints throughout the codebase to maintain uniformity and facilitate easier code reviews and collaboration.
+
+  - name: TCP Socket Best Practices
+    description: Follow best practices for TCP socket connections.
+    details:
+      - Implement proper connection lifecycle handling (connect/disconnect)
+      - Use context managers (`with` statements) for automatic resource cleanup
+      - Set reasonable timeouts for connection attempts and data transfers
+      - Implement reconnection logic with exponential backoff
+      - Use proper buffering strategies for data transmission
+      - Handle partial message reception (implement message framing)
+      - Enforce data encoding/decoding standards (UTF-8 recommended)
+      - Implement data validation and sanitization
+      - Handle socket-specific exceptions (ConnectionRefusedError, TimeoutError, etc.)
+      - Implement proper error recovery mechanisms
+      - Include connection health checks and heartbeat mechanisms
+      - Enforce TLS encryption for all socket communications
+      - Implement certificate validation for secure connections
+      - Use secure protocols (TLS 1.2+)
+      - Handle sensitive credentials securely (not hardcoded)
+      - Optimize buffer sizes for data transfer
+      - Implement asynchronous I/O using asyncio or threading
+      - Use non-blocking sockets where appropriate
+      - Monitor and limit resource usage
+      - Log connection states and critical events
+      - Implement connection statistics tracking
+      - Add debug logging for troubleshooting
+      - Make host/port configurable through config files/environment variables
+      - Allow customization of timeout values
+      - Support proxy configuration options
