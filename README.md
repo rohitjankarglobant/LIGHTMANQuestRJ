@@ -18,10 +18,6 @@ The MiniTel-Lite Infiltration Tool is designed to connect to MiniTel-Lite server
 ## Installation
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd minitel-lite-client
-
 # Create and activate a virtual environment (optional but recommended)
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
