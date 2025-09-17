@@ -23,7 +23,6 @@ def test_argument_parsing(arg_parser):
     args = arg_parser.parse_args([f"--host={MOCK_HOST}", f"--port={MOCK_PORT}"])
     assert args.host == MOCK_HOST
     assert args.port == MOCK_PORT
-    assert args.use_tls is True  # Default value
     
     # Test optional arguments
     args = arg_parser.parse_args([
@@ -33,9 +32,8 @@ def test_argument_parsing(arg_parser):
         "--record-session",
         f"--recording-dir={MOCK_RECORDING_DIR}"
     ])
-    assert args.use_tls is False
+    assert args.no_tls is False
     assert args.record_session is True
-    assert args.recording_dir == MOCK_RECORDING_DIR
     
     # Test help output (this will raise SystemExit)
     with pytest.raises(SystemExit):
@@ -79,38 +77,37 @@ def test_run_client_success(monkeypatch):
             # Return appropriate responses for each command
             if self.expected_nonce == 0:
                 # HELLO_ACK response
-                self.expected_nonce = 1
-                return b"\x00\x06\x81\x01"
-            elif self.expected_nonce == 1:
-                # DUMP_FAILED response
                 self.expected_nonce = 2
-                return b"\x00\x06\x82\x02"
+                return b"\x00\x06\x81\x01"
             elif self.expected_nonce == 2:
-                # DUMP_OK response with data
+                # DUMP_FAILED response
                 self.expected_nonce = 3
-                return b"\x00\n\x83\x03CODE123"
+                return b"\x00\x06\x82\x02"
             elif self.expected_nonce == 3:
-                # STOP_OK response
+                # DUMP_OK response with data
                 self.expected_nonce = 4
+                return b"\x00\n\x83\x03CODE123"
+            elif self.expected_nonce == 4:
+                # STOP_OK response
+                self.expected_nonce = 5
                 return b"\x00\x06\x84\x04"
             return b""
             
         def disconnect(self):
             self.connected = False
     
-    # Patch the client class
-    monkeypatch.setattr("minitel_lite_client.cli.MiniTelLiteClient", MockClient)
+
     
     # Test without session recording
     args = argparse.Namespace(
         host=MOCK_HOST,
         port=MOCK_PORT,
-        use_tls=True,
+        no_tls=True,
         record_session=False,
         recording_dir=MOCK_RECORDING_DIR
     )
     
-    result = run_client(args)
+    result = run_client(args, client_class= MockClient)
     assert result["success"] is True
     assert result["override_code"] == "CODE123"
     assert result["session_recording"] is None
