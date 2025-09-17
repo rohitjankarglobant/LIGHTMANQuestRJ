@@ -1,0 +1,20 @@
+# general_guidelines.yaml
+
+general_guidelines:
+  - name: Documentation Requirements
+    description: Include comprehensive documentation for the project.
+    details:
+      - Include a comprehensive README with:
+          - Architecture design explanation.
+          - Key design decisions and rationale.
+          - Instructions for running tests.
+          - How your code handles edge cases.
+      - Comment complex sections of code for clarity.
+
+  - name: Version Control
+    description: Follow best practices for version control.
+    details:
+      - Use meaningful commit messages that describe changes.
+      - Commit code frequently with small, incremental changes.
+      - Use branches for features, bug fixes, and experiments.
+      - Regularly merge changes to the main branch to avoid large merge conflicts.

@@ -1,0 +1,111 @@
+# coding_standards.yaml
+
+coding_standards:
+  - name: SOLID Principles
+    description: Ensure adherence to SOLID principles in code design.
+    details:
+      - Single Responsibility Principle (SRP): Each class should have one responsibility.
+      - Open/Closed Principle (OCP): Classes should be open for extension but closed for modification.
+      - Liskov Substitution Principle (LSP): Subtypes must be substitutable for their base types.
+      - Interface Segregation Principle (ISP): Clients should not be forced to depend on interfaces they do not use.
+      - Dependency Inversion Principle (DIP): High-level modules should depend on abstractions, not on low-level modules.
+
+  - name: Naming Conventions
+    description: Follow consistent naming conventions for readability and maintainability.
+    details:
+      - Classes: Use CamelCase (e.g., MyClass, UserProfile).
+      - Functions/Methods: Use snake_case (e.g., calculate_total, get_user_data).
+      - Variables: Use meaningful names that clearly describe their purpose (e.g., user_count, total_price).
+      - Constants: Use UPPER_SNAKE_CASE (e.g., MAX_CONNECTIONS, DEFAULT_TIMEOUT).
+      - Modules/Packages: Use snake_case (e.g., data_processing.py, user_auth.py).
+
+  - name: Unit Testing
+    description: Write unit tests for all functions and methods.
+    details:
+      - Use unittest or pytest frameworks.
+      - Isolate tests to avoid dependencies on external systems.
+      - Use descriptive test names indicating what is being tested.
+      - Mock external dependencies where necessary.
+      - Ensure at least 80% code coverage.
+      - Include automated tests that verify your solution handles server disconnections, edge cases, and protocol validation failures.
+      - Provide a test runner script and clear documentation on how to execute tests.
+
+  - name: Code Quality
+    description: Maintain high code quality through best practices.
+    details:
+      - Use type hints for function signatures.
+      - Keep functions and methods short (ideally less than 20 lines).
+      - Avoid deep nesting of code (limit to 3 levels).
+      - Use comments and docstrings to explain complex logic.
+      - Follow PEP 8 style guide for Python code.
+      - Ensure consistent code formatting and style across the codebase.
+      - Comment complex sections of code for clarity.
+
+  - name: Command-Line Tool Best Practices
+    description: Follow best practices for developing command-line tools.
+    details:
+      - Use argparse or click: Utilize libraries like "argparse" or "click" for parsing command-line arguments.
+      - Provide help messages: Implement "--help" or "-h" options to display usage information and available commands.
+      - Use clear and descriptive command names: Ensure command names are intuitive and reflect their functionality.
+      - Implement exit codes: Use appropriate exit codes (0 for success, non-zero for errors) to indicate the result of the command execution.
+      - Support input validation: Validate user inputs and provide clear error messages for invalid inputs.
+      - Allow for configuration files: Support reading from configuration files to allow users to set default options.
+      - Log output: Provide logging options to capture output and errors for debugging purposes.
+      - Ensure cross-platform compatibility: Test the tool on different operating systems to ensure consistent behavior.
+      - Follow conventions: Adhere to common CLI conventions (e.g., using "--" for long options, "-" for short options).
+      - Provide examples: Include examples in the help message to demonstrate usage.
+      - Package Structure: |
+          Organize code into a clear package structure to enhance maintainability and extensibility:
+
+          my_tool/: Main package directory.
+            __init__.py: Package initialization file.
+            cli.py: Entry point for the command-line interface.
+            commands/: Directory for command modules.
+              __init__.py: Package initialization file for commands.
+              command_one.py: Module for the first command.
+              command_two.py: Module for the second command.
+              command_three.py: Module for the third command (new feature).
+            utils.py: Utility functions used across commands.
+            config.py: Configuration handling.
+            exceptions.py: Custom exceptions for error handling.
+            logging_config.py: Logging configuration.
+            tests/: Directory for unit tests.
+              __init__.py: Package initialization file for tests.
+              test_command_one.py: Unit tests for command one.
+              test_command_two.py: Unit tests for command two.
+              test_command_three.py: Unit tests for command three (new feature).
+
+  - name: Clean Architecture Patterns
+    description: Follow clean architecture principles to separate concerns and enhance maintainability.
+    details:
+      - Organize code into layers (e.g., presentation, business logic, data access).
+      - Ensure that each layer has a clear responsibility and interacts with other layers through well-defined interfaces.
+
+  - name: Comprehensive Error Handling and Logging
+    description: Implement robust error handling and logging mechanisms.
+    details:
+      - Use try-except blocks to catch and handle exceptions gracefully.
+      - Log errors and important events to assist in debugging and monitoring.
+      - Provide meaningful error messages to users.
+
+  - name: Security Best Practices
+    description: Follow security best practices to protect sensitive information.
+    details:
+      - Avoid hardcoding secrets (e.g., API keys, passwords) in the codebase.
+      - Use environment variables or configuration files to manage sensitive information securely.
+      - Validate and sanitize user inputs to prevent injection attacks.
+
+  - name: Proper Separation of Concerns
+    description: Maintain a clear separation of concerns in the codebase.
+    details:
+      - Ensure that different functionalities are encapsulated in separate modules or classes.
+      - Avoid mixing business logic with presentation or data access logic.
+
+  - name: Type Hints
+    description: Use type hints to improve code clarity and maintainability.
+    details:
+      - Always provide type hints for function parameters and return values to enhance readability and self-documentation.
+      - Use the `typing` module for complex types, such as `List`, `Dict`, `Tuple`, and `Optional`, to specify the expected types of collections and optional values.
+      - Ensure that all public functions and methods have type hints to communicate their expected usage clearly.
+      - Utilize static type checkers (e.g., `mypy`) to validate type hints and catch potential type-related errors before runtime.
+      - Consistently apply type hints throughout the codebase to maintain uniformity and facilitate easier code reviews and collaboration.
