@@ -87,6 +87,14 @@ def run_client(args: argparse.Namespace) -> Dict[str, Any]:
 
         client.connect()
 
+        # Initialize session recording if enabled
+        if session_recording is not None:
+            session_recording.append({
+                "timestamp": time.time(),
+                "request": "HELLO",
+                "response": None
+            })
+            
         # Send HELLO command
         hello_frame = protocol.send_command(CMD_HELLO)
         logger.info(f"Sending HELLO command with nonce {protocol.client_nonce}")
@@ -98,15 +106,18 @@ def run_client(args: argparse.Namespace) -> Dict[str, Any]:
         hello_response = protocol.handle_server_response(hello_response_data)
 
         if session_recording is not None:
-            session_recording.append({
-                "timestamp": time.time(),
-                "request": "HELLO",
-                "response": hello_response
-            })
+            session_recording[-1]["response"] = hello_response
 
         logger.info("Successfully initialized connection with HELLO_ACK")
 
         # First DUMP command
+        if session_recording is not None:
+            session_recording.append({
+                "timestamp": time.time(),
+                "request": "DUMP",
+                "response": None
+            })
+            
         dump_frame = protocol.send_command(CMD_DUMP)
         logger.info(f"Sending DUMP command with nonce {protocol.client_nonce}")
         client.send(dump_frame)
@@ -117,15 +128,18 @@ def run_client(args: argparse.Namespace) -> Dict[str, Any]:
         dump_response = protocol.handle_server_response(dump_response_data)
 
         if session_recording is not None:
-            session_recording.append({
-                "timestamp": time.time(),
-                "request": "DUMP",
-                "response": dump_response
-            })
+            session_recording[-1]["response"] = dump_response
 
         logger.info("First DUMP command completed")
 
         # Second DUMP command
+        if session_recording is not None:
+            session_recording.append({
+                "timestamp": time.time(),
+                "request": "DUMP",
+                "response": None
+            })
+            
         dump_frame = protocol.send_command(CMD_DUMP)
         logger.info(f"Sending second DUMP command with nonce {protocol.client_nonce}")
         client.send(dump_frame)
@@ -136,11 +150,7 @@ def run_client(args: argparse.Namespace) -> Dict[str, Any]:
         final_dump_response = protocol.handle_server_response(final_dump_response_data)
 
         if session_recording is not None:
-            session_recording.append({
-                "timestamp": time.time(),
-                "request": "DUMP",
-                "response": final_dump_response
-            })
+            session_recording[-1]["response"] = final_dump_response
 
         logger.info("Second DUMP command completed successfully")
 
@@ -150,6 +160,13 @@ def run_client(args: argparse.Namespace) -> Dict[str, Any]:
             logger.info(f"Emergency override code retrieved: {result['override_code']}")
 
         # Send STOP command
+        if session_recording is not None:
+            session_recording.append({
+                "timestamp": time.time(),
+                "request": "STOP",
+                "response": None
+            })
+            
         stop_frame = protocol.send_command(CMD_STOP)
         logger.info(f"Sending STOP command with nonce {protocol.client_nonce}")
         client.send(stop_frame)
@@ -160,11 +177,7 @@ def run_client(args: argparse.Namespace) -> Dict[str, Any]:
         stop_response = protocol.handle_server_response(stop_response_data)
 
         if session_recording is not None:
-            session_recording.append({
-                "timestamp": time.time(),
-                "request": "STOP",
-                "response": stop_response
-            })
+            session_recording[-1]["response"] = stop_response
 
         logger.info("Connection acknowledged with STOP command")
 
@@ -192,36 +205,42 @@ def run_client(args: argparse.Namespace) -> Dict[str, Any]:
 
     return result
 
-if __name__ == '__main__':
+def main():
     """
     Main entry point for the MiniTel-Lite client command-line interface
     """
-
     try:
         # Parse command-line arguments
         parser = create_arg_parser()
         args = parser.parse_args()
-
+        
         # Run the client with the provided arguments
         result = run_client(args)
-
+        
         # Display results to user
         if result["success"]:
             print("\n✅ Connection completed successfully")
-
+            
             if result["override_code"]:
                 print(f"🔐 Emergency override code: {result['override_code']}")
             
             if result["session_recording"]:
-                print(f"\nSession recording saved to: {result['session_recording']}")
+                print(f"\n📼 Session recording saved to: {result['session_recording']}")
             else:
                 print("\n❌ No session recording saved")
-
+                
             if result["error"]:
-                print(f"\nError occurred:{result["error"]}")
-
+                print(f"\n⚠️ Warning: {result['error']}")
+        else:
+            print(f"\n❌ Connection failed: {result['error']}")
+            
+    except KeyboardInterrupt:
+        print("\n\nUser interrupted the operation")
+        sys.exit(1)
     except Exception as e:
+        print(f"\n❌ Unexpected error: {str(e)}")
+        logger.error(f"Unexpected error in main: {str(e)}", exc_info=True)
+        sys.exit(1)
 
-        print("\nFailed ")
-        logger.error(f"Unexpected error: {str(e)}", exc_info=True)
-        result["error"] = f"Unexpected error: {str(e)}"
+if __name__ == "__main__":
+    main()
