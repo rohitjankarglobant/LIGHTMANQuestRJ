@@ -1,0 +1,238 @@
+Product Requirements Document (PRD)
+Product Title: MiniTel-Lite Infiltration Tool
+1. Objective
+The objective of this application is to infiltrate the MiniTel-Lite network and retrieve emergency override codes from the JOSHUA system by following a precise protocol.
+
+2. Functional Requirements
+2.1 Terminal Connection
+Requirement: The application must connect to the MiniTel-Lite server and authenticate using the HELLO protocol.
+
+Functionality:
+
+Send the HELLO command to initialize the connection.
+
+Handle server responses and manage nonce tracking.
+
+Implement the DUMP command to retrieve the override code by invoking it twice.
+
+Gracefully handle unexpected disconnections from the server.
+
+2.2 Session Recording Feature
+Requirement: The application must record all client-server interactions when the session recording feature is enabled.
+
+Functionality:
+
+Store interactions in a JSON file.
+
+Each record must include:
+
+Timestamp
+
+Request data
+
+Response data
+
+Ensure recording files are uniquely identifiable and timestamped.
+
+Control recording via a command-line flag.
+
+2.3 TUI Replay Application
+Requirement: Provide a standalone TUI application for replaying session recordings.
+
+Functionality:
+
+Implement keybindings:
+
+N / n - Next step
+
+P / p - Previous step
+
+Q / q - Quit
+
+Display current step number and total steps.
+
+Show request and response details for each step.
+
+3. Technical Requirements
+3.1 Protocol Specifications
+Protocol: MiniTel-Lite Protocol Version 3.0
+
+Commands:
+
+HELLO (0x01): Initialize connection.
+
+DUMP (0x02): Request secret (stateful).
+
+STOP_CMD (0x04): Acknowledgment/testing.
+
+Frame Structure:
+
+CMD + NONCE + PAYLOAD + HASH.
+
+Error Handling: Implement comprehensive error handling for:
+
+Invalid nonce
+
+Unknown command
+
+Malformed frame
+
+Hash validation failure
+
+Invalid Base64
+
+3.2 Architecture
+Design Pattern: Follow clean architecture principles to separate concerns.
+
+Logging: Utilize a logging library (e.g., loguru) for error handling and debugging.
+
+Testing: Include automated tests to verify:
+
+Server disconnections
+
+Edge cases
+
+Protocol validation failures.
+
+Documentation: Provide a README with:
+
+Architecture design explanation
+
+Key design decisions and rationale
+
+Instructions for running tests
+
+Handling of edge cases.
+
+4. Coding Standards & Quality Requirements
+Follow industry best practices including:
+
+Meaningful variable and function naming.
+
+Proper separation of concerns.
+
+Security best practices (e.g., no hardcoded secrets).
+
+Consistent code formatting and style.
+
+Comment complex sections of code for clarity.
+
+5. Testing & Validation
+Automated Tests: Implement tests using pytest.
+
+Test Runner Script: Provide a script to execute tests easily.
+
+Documentation: Include clear instructions on how to run tests.
+
+6. User Interface Requirements
+TUI Design: The TUI should be user-friendly and intuitive.
+
+Feedback: Provide clear feedback for user actions and errors.
+
+7. Non-Functional Requirements
+Performance: The application should handle multiple connections efficiently.
+
+Scalability: Design the application to accommodate future enhancements.
+
+Security: Ensure secure handling of data and connections.
+
+
+
+
+Here is how the MiniTel-Lite Protocol is working :
+
+Version: 3.0
+Date: January 2025
+Status: Current
+
+
+Overview:
+MiniTel-Lite is a minimalist TCP-based protocol designed for educational purposes and system testing. The protocol has evolved through three major versions, each adding enhanced security, state management, and resource control features.
+
+Protocol Evolution
+Version 3.0 (Current)
+
+Purpose: Resource management with automatic connection timeout
+Commands: HELLO, DUMP, STOP_CMD (unchanged from v2.0)
+Frame Structure: CMD + NONCE + PAYLOAD + HASH (unchanged from v2.0)
+Features: 2-second connection timeout, background cleanup, enhanced metrics
+
+
+Wire Protocol Specification
+Frame Format (v2.0+)
+
+Wire Format:
+LEN (2 bytes, big-endian) | DATA_B64 (LEN bytes, Base64 encoded)
+
+
+Binary Frame (after Base64 decoding):
+CMD (1 byte) | NONCE (4 bytes, big-endian) | PAYLOAD (0-65535 bytes) | HASH (32 bytes SHA-256)
+
+Encoding / Decoding Rules:
+Encoding Process:
+
+1. Build binary frame: CMD + NONCE + PAYLOAD + HASH
+2. Calculate hash: SHA-256(CMD + NONCE + PAYLOAD)
+3. Base64 encode the complete frame (no newlines)
+4. Prepend 2-byte length prefix (big-endian)
+
+
+Decoding Process: 
+
+
+1. Read 2-byte length prefix
+2. Read exactly length bytes of Base64 data
+3. Base64 decode to get binary frame
+4. Extract CMD, NONCE, PAYLOAD, HASH
+5. Verify hash: SHA-256(CMD + NONCE + PAYLOAD)
+6. Reject frame if hash validation fails
+
+
+Field Descriptions:
+
+LEN – unsigned 16-bit, big-endian, length of Base64-encoded data
+CMD – command ID (see Commands)
+NONCE – 4-byte unsigned integer, big-endian, sequence tracking
+PAYLOAD – command-specific data, UTF-8 prior to encoding
+HASH – 32-byte SHA-256 digest of CMD + NONCE + PAYLOAD
+
+Commands:
+Command	Code	Direction	Purpose	Response
+HELLO	0x01	Client → Server	Initialize connection	0x81 HELLO_ACK
+DUMP	0x02	Client → Server	Request secret (stateful)	0x82 DUMP_FAILED or 0x83 DUMP_OK
+STOP_CMD	0x04	Client → Server	Acknowledgment/testing	0x84 STOP_OK
+
+
+HELLO Command (0x01):
+Purpose: Initialize connection and nonce tracking
+Payload: Empty (0 bytes)
+Response: HELLO_ACK (0x81) with empty payload
+State Changes: Initializes connection nonce tracking, resets DUMP counter to 0, sets last_command to HELLO
+
+DUMP Command (0x02) :
+Purpose: Request a memory dump
+Payload: Empty (0 bytes)
+Response:DUMP_OK (0x83) or DUMP_FAILED (0x82)
+
+
+Nonce Sequence: 
+
+Client messages: Use expected nonce value
+Server responses: Increment nonce by 1
+Validation: Any nonce mismatch results in immediate disconnection
+
+Example Sequence: 
+Client HELLO (nonce=0) → Server HELLO_ACK (nonce=1)
+Client DUMP (nonce=2) → Server DUMP_FAILED (nonce=3)
+Client DUMP (nonce=4) → Server DUMP_OK (nonce=5)
+Client STOP_CMD (nonce=6) → Server STOP_OK (nonce=7)
+
+
+Error Handling:
+Protocol Violations
+
+Invalid nonce: Immediate disconnection
+Unknown command: Immediate disconnection
+Malformed frame: Immediate disconnection
+Hash validation failure: Immediate disconnection
+Invalid Base64: Immediate disconnection
