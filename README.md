@@ -44,7 +44,7 @@ python -m minitel_lite_client.cli --host <hostname> --port <port> --record-sessi
 python -m minitel_lite_client.cli --host <hostname> --port <port> --no-tls
 ```
 
-Example : `python3 -m minitel_lite_client.cli --host=35.153.159.192 --port=7321 --record-session --recording-dir=./recordings`
+Example : `python3 -m minitel_lite_client.cli --host=localhost --port=7321 --record-session --recording-dir=./recordings`
 
 ### Session Replay TUI
 
